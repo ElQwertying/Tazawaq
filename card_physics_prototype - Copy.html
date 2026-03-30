@@ -1,254 +1,261 @@
-<style>
-	@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600&display=swap');
+<!DOCTYPE html>
+<html lang="ar">
 
-	* {
-		box-sizing: border-box;
-		margin: 0;
-		padding: 0;
-		touch-action: none;
-	}
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600&display=swap');
 
-	body {
-		background: #FDF8F3;
-		min-height: 100vh;
-		overflow: hidden;
-	}
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			touch-action: none;
+		}
 
-	.wrap {
-		font-family: 'Cairo', sans-serif;
-		direction: rtl;
-		height: 100vh;
-		width: 100vw;
-		overflow: hidden;
-		user-select: none;
-		position: relative;
-		display: flex;
-		flex-direction: column;
-	}
+		body {
+			background: #FDF8F3;
+			min-height: 100vh;
+			overflow: hidden;
+		}
 
-	.top-section {
-		padding: 1.5rem 1.25rem 0.5rem;
-		pointer-events: none;
-	}
+		.wrap {
+			font-family: 'Cairo', sans-serif;
+			direction: rtl;
+			height: 100vh;
+			width: 100vw;
+			overflow: hidden;
+			user-select: none;
+			position: relative;
+			display: flex;
+			flex-direction: column;
+		}
 
-	.topbar {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 15px;
-	}
+		.top-section {
+			padding: 1.5rem 1.25rem 0.5rem;
+			pointer-events: none;
+		}
 
-	.app-name {
-		font-size: 18px;
-		font-weight: 600;
-		color: #7B4F2E;
-	}
+		.topbar {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 15px;
+		}
 
-	.streak {
-		font-size: 13px;
-		color: #B07850;
-		background: #F5E6D8;
-		padding: 4px 12px;
-		border-radius: 99px;
-	}
+		.app-name {
+			font-size: 18px;
+			font-weight: 600;
+			color: #7B4F2E;
+		}
 
-	.confidence-track {
-		background: #EDD9C8;
-		border-radius: 99px;
-		height: 6px;
-		width: 100%;
-		margin-top: 8px;
-	}
+		.streak {
+			font-size: 13px;
+			color: #B07850;
+			background: #F5E6D8;
+			padding: 4px 12px;
+			border-radius: 99px;
+		}
 
-	.confidence-fill {
-		background: #C47B3A;
-		border-radius: 99px;
-		height: 6px;
-		width: 38%;
-		transition: width 0.3s;
-	}
+		.confidence-track {
+			background: #EDD9C8;
+			border-radius: 99px;
+			height: 6px;
+			width: 100%;
+			margin-top: 8px;
+		}
 
-	.arena {
-		position: relative;
-		flex: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 10px;
-		width: 100%;
-	}
+		.confidence-fill {
+			background: #C47B3A;
+			border-radius: 99px;
+			height: 6px;
+			width: 38%;
+			transition: width 0.3s;
+		}
 
-	.card {
-		position: absolute;
-		width: 320px;
-		height: 400px;
-		position: relative;
-		width: 100%;
-		height: 100%;
-		max-width: 420px;
-		max-height: min(70vh, 550px);
-		border-radius: 28px;
-		z-index: 10;
-		overflow: hidden;
-		cursor: grab;
-		will-change: transform;
-		background: #fff;
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-		-webkit-mask-image: -webkit-radial-gradient(white, black);
-	}
+		.arena {
+			position: relative;
+			flex: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 10px;
+			width: 100%;
+		}
 
-	.card-split-wrap {
-		display: flex;
-		height: 100%;
-		width: 100%;
-		position: relative;
-	}
+		.card {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			max-width: 420px;
+			max-height: min(70vh, 550px);
+			border-radius: 28px;
+			z-index: 10;
+			overflow: hidden;
+			cursor: grab;
+			will-change: transform;
+			background: #fff;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+			-webkit-mask-image: -webkit-radial-gradient(white, black);
+		}
 
-	.side {
-		width: 50%;
-		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 85px;
-		font-size: min(15vw, 80px);
-		background-size: cover;
-		background-position: center;
-	}
+		.card-split-wrap {
+			display: flex;
+			height: 100%;
+			width: 100%;
+			position: relative;
+		}
 
-	.card-gradient-mid {
-		position: absolute;
-		left: 0;
-		top: 0;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(to right, rgba(255, 255, 255, 0) 48%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 52%);
-		z-index: 2;
-		pointer-events: none;
-	}
+		.side {
+			width: 50%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: clamp(50px, 12vh, 110px);
+			background-size: cover;
+			background-position: center;
+		}
 
-	/* Faster transition for the 'lock-in' effect */
-	.overlay {
-		position: absolute;
-		inset: 0;
-		opacity: 0;
-		z-index: 3;
-		pointer-events: none;
-		border-radius: 28px;
-		transition: opacity 0.08s ease-out;
-	}
+		.card-gradient-mid {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(to right, rgba(255, 255, 255, 0) 48%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 52%);
+			z-index: 2;
+			pointer-events: none;
+		}
 
-	.overlay-up {
-		background: #E24B4A;
-	}
+		/* Faster transition for the 'lock-in' effect */
+		.overlay {
+			position: absolute;
+			inset: 0;
+			opacity: 0;
+			z-index: 3;
+			pointer-events: none;
+			border-radius: 28px;
+			transition: opacity 0.08s ease-out;
+		}
 
-	.overlay-left {
-		background: #F4C430;
-	}
+		.overlay-up {
+			background: #E24B4A;
+		}
 
-	.card-content {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		z-index: 4;
-		padding: 3rem 1rem 1.5rem;
-		background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-		text-align: center;
-	}
+		.overlay-left {
+			background: #F4C430;
+		}
 
-	.card-question {
-		font-size: 16px;
-		color: #fff;
-		margin-bottom: 8px;
-		font-weight: 600;
-	}
+		.card-content {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			z-index: 4;
+			padding: 3rem 1rem 1.5rem;
+			background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+			text-align: center;
+		}
 
-	.context-area {
-		padding: 1.5rem 1rem 2.5rem;
-		text-align: center;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		transition: opacity 0.3s ease;
-	}
+		.card-question {
+			font-size: 16px;
+			color: #fff;
+			margin-bottom: 8px;
+			font-weight: 600;
+		}
 
-	.context-title {
-		font-size: 15px;
-		color: #7B4F2E;
-		font-weight: 600;
-		margin-bottom: 4px;
-	}
+		.context-area {
+			padding: 1.5rem 1rem 2.5rem;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			transition: opacity 0.3s ease;
+		}
 
-	.context-desc {
-		font-size: 13px;
-		color: #B07850;
-		opacity: 0.8;
-	}
+		.context-title {
+			font-size: 15px;
+			color: #7B4F2E;
+			font-weight: 600;
+			margin-bottom: 4px;
+		}
 
-	.stamp {
-		position: absolute;
-		border-radius: 12px;
-		padding: 8px 20px;
-		font-size: 32px;
-		font-weight: 900;
-		opacity: 0;
-		z-index: 6;
-		border: 5px solid;
-		pointer-events: none;
-		transition: opacity 0.1s;
-	}
+		.context-desc {
+			font-size: 13px;
+			color: #B07850;
+			opacity: 0.8;
+		}
 
-	.stamp-no {
-		border-color: #7B4F2E;
-		color: #7B4F2E;
-		top: 40px;
-		right: 30px;
-		transform: rotate(15deg);
-	}
+		.stamp {
+			position: absolute;
+			border-radius: 12px;
+			padding: 8px 20px;
+			font-size: 32px;
+			font-weight: 900;
+			opacity: 0;
+			z-index: 6;
+			border: 5px solid;
+			pointer-events: none;
+			transition: opacity 0.1s;
+		}
 
-	.stamp-yes {
-		border-color: #3B6D11;
-		color: #3B6D11;
-		top: 40px;
-		left: 30px;
-		transform: rotate(-15deg);
-	}
-</style>
+		.stamp-no {
+			border-color: #7B4F2E;
+			color: #7B4F2E;
+			top: 40px;
+			right: 30px;
+			transform: rotate(15deg);
+		}
 
-<div class="wrap">
-	<div class="top-section">
-		<div class="topbar">
-			<div class="app-name">نكهة</div>
-			<div class="streak">🔥 ٣ أيام</div>
-		</div>
-		<div class="confidence-track">
-			<div class="confidence-fill" id="progress"></div>
-		</div>
-	</div>
+		.stamp-yes {
+			border-color: #3B6D11;
+			color: #3B6D11;
+			top: 40px;
+			left: 30px;
+			transform: rotate(-15deg);
+		}
+	</style>
+</head>
 
-	<div class="arena">
-		<div class="card" id="card">
-			<div class="card-split-wrap">
-				<div class="side" id="img-left">🍗</div>
-				<div class="card-gradient-mid"></div>
-				<div class="side" id="img-right">🥬</div>
+<body>
+
+	<div class="wrap">
+		<div class="top-section">
+			<div class="topbar">
+				<div class="app-name">نكهة</div>
+				<div class="streak">🔥 ٣ أيام</div>
 			</div>
-			<div class="overlay overlay-up" id="over-up"></div>
-			<div class="overlay overlay-left" id="over-left"></div>
-			<div class="stamp stamp-no" id="stamp-no">لا</div>
-			<div class="stamp stamp-yes" id="stamp-yes">آكلها</div>
-			<div class="card-content">
-				<div class="card-question" id="card-q">...</div>
+			<div class="confidence-track">
+				<div class="confidence-fill" id="progress"></div>
 			</div>
 		</div>
+
+		<div class="arena">
+			<div class="card" id="card">
+				<div class="card-split-wrap">
+					<div class="side" id="img-left">🍗</div>
+					<div class="card-gradient-mid"></div>
+					<div class="side" id="img-right">🥬</div>
+				</div>
+				<div class="overlay overlay-up" id="over-up"></div>
+				<div class="overlay overlay-left" id="over-left"></div>
+				<div class="stamp stamp-no" id="stamp-no">لا</div>
+				<div class="stamp stamp-yes" id="stamp-yes">آكلها</div>
+				<div class="card-content">
+					<div class="card-question" id="card-q">...</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="context-area" id="ctx-area">
+			<div class="context-title" id="ctx-title">...</div>
+			<div class="context-desc" id="ctx-desc">...</div>
+		</div>
 	</div>
 
-	<div class="context-area" id="ctx-area">
-		<div class="context-title" id="ctx-title">...</div>
-		<div class="context-desc" id="ctx-desc">...</div>
-	</div>
-</div>
+</body>
 
 <script>
 	const cards = [
