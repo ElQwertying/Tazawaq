@@ -26,6 +26,7 @@ export function initStack() {
 			<div class="stamp stamp-yes">آكلها</div>
 			<div class="stamp stamp-rejected">مرفوض</div>
 			<div class="card-content"><div class="card-question">${c.q}</div></div>
+			<div class="white-wash" style="position:absolute;top:0;left:0;width:100%;height:100%;background:white;opacity:0;pointer-events:none;border-radius:inherit;z-index:5;"></div>
 		`;
 		stackContainer.appendChild(el);
 	});
@@ -43,19 +44,22 @@ export function updateStack() {
 
 	for (let i = state.idx; i < CARDS.length; i++) {
 		const el = document.getElementById(`card-${i}`);
+		const wash = el.querySelector('.white-wash');
 		const diff = i - state.idx;
+
 		if (diff === 0) {
 			el.classList.add('active');
 			el.style.transform = 'translate(0,0) scale(1)';
 			el.style.opacity = 1;
 			el.style.zIndex = 100;
+			if (wash) wash.style.opacity = 0;
 		} else {
 			el.classList.remove('active');
 			const scale = 1 - Math.pow(diff, 0.9) * 0.09;
 			const moveY = diff * 27;
 			el.style.transform = `translateY(${moveY}px) scale(${scale})`;
-			// el.style.opacity = 1 - (diff * 0.2);
 			el.style.zIndex = 100 - diff;
+			if (wash) wash.style.opacity = Math.min(diff * 0.35, 0.85);
 		}
 	}
 
