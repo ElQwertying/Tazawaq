@@ -148,11 +148,15 @@
 		}
 
 		.overlay-up {
-			background: #E24B4A;
+			background: linear-gradient(to bottom, #FF416C 0%, #FF4B2B 100%);
 		}
 
 		.overlay-left {
-			background: #F4C430;
+			background: linear-gradient(225deg, #fff12b 0%, #ffaf1c 100%);
+		}
+
+		.overlay-right {
+			background: linear-gradient(135deg, #09d513 0%, #09d70c 100%);
 		}
 
 		.card-content {
@@ -278,9 +282,10 @@
 		{ q: 'سمك + أرز أبيض؟', left: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600', right: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=600', title: 'أطباق بحرية', desc: 'هل تفضل السمك مع الأرز أم الخبز؟' }
 	];
 
-	let idx = 0, dragging = false, startX = 0, startY = 0;
-	const PHYSICS_THRESHOLD = 100;
-	const FLY_THRESHOLD = 140;
+	let idx = 0, dragging = false, startX = 0, startY = 0, startTime = 0;
+	const PHYSICS_THRESHOLD = 50;
+	const FLY_THRESHOLD = 100;
+	const VELOCITY_THRESHOLD = 0.5; // pixels per millisecond
 	const stackContainer = document.getElementById('stack-container');
 
 	function initStack() {
@@ -298,6 +303,7 @@
 				</div>
 				<div class="overlay overlay-up"></div>
 				<div class="overlay overlay-left"></div>
+				<div class="overlay overlay-right"></div>
 				<div class="stamp stamp-no">لا</div>
 				<div class="stamp stamp-yes">آكلها</div>
 				<div class="card-content"><div class="card-question">${c.q}</div></div>
@@ -333,7 +339,7 @@
 				// (diff * 0.09);
 				const moveY =
 					// Math.pow(diff, 1.0) * 17;
-					diff * 17;
+					diff * 22;
 				el.style.transform = `translateY(${moveY}px) scale(${scale})`;
 				el.style.opacity = 1 - (diff * 0.2);
 				el.style.zIndex = 100 - diff;
@@ -368,10 +374,18 @@
 		el.style.transition = 'none';
 		el.style.transform = `translate(${mx}px, ${my}px) rotate(${mx * 0.04}deg)`;
 
-		el.querySelector('.overlay-up').style.opacity = my < -20 ? Math.min(0.7, Math.abs(my) / 200) : 0;
+		const glow = Math.min(60, Math.max(Math.abs(mx), Math.abs(my)) / 2);
+
+		el.querySelector('.overlay-up').style.opacity = my < -20 ? Math.min(0.8, Math.abs(my) / 200) : 0;
+		el.querySelector('.overlay-left').style.opacity = mx < -20 ? Math.min(0.8, Math.abs(mx) / 200) : 0;
+		el.querySelector('.overlay-right').style.opacity = mx > 20 ? Math.min(0.8, Math.abs(mx) / 200) : 0;
 		el.querySelector('.stamp-no').style.opacity = mx < -20 ? Math.min(1, Math.abs(mx + 20) / 80) : 0;
 		el.querySelector('.stamp-yes').style.opacity = mx > 20 ? Math.min(1, (mx - 20) / 80) : 0;
-		el.querySelector('.overlay-left').style.opacity = mx < -20 ? Math.min(0.6, Math.abs(mx) / 200) : 0;
+
+		if (my < -20) el.style.boxShadow = `0 0 ${glow}px rgba(255, 65, 108, 0.6)`;
+		else if (mx < -20) el.style.boxShadow = `0 0 ${glow}px rgba(255, 75, 43, 0.6)`;
+		else if (mx > 20) el.style.boxShadow = `0 0 ${glow}px rgba(0, 176, 155, 0.6)`;
+		else el.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
 	}
 
 	function fly(dir) {
@@ -392,13 +406,17 @@
 		const el = document.getElementById(`card-${idx}`);
 		const rx = e.clientX - startX;
 		const ry = e.clientY - startY;
+		const duration = Date.now() - startTime;
+		const vx = rx / duration;
+		const vy = ry / duration;
 
-		if (rx > FLY_THRESHOLD) fly('r');
-		else if (rx < -FLY_THRESHOLD) fly('l');
-		else if (ry < -FLY_THRESHOLD) fly('u');
+		if (rx > FLY_THRESHOLD || (vx > VELOCITY_THRESHOLD && rx > 20)) fly('r');
+		else if (rx < -FLY_THRESHOLD || (vx < -VELOCITY_THRESHOLD && rx < -20)) fly('l');
+		else if (ry < -FLY_THRESHOLD || (vy < -VELOCITY_THRESHOLD && ry < -20)) fly('u');
 		else {
 			el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 			el.style.transform = 'translate(0,0) scale(1)';
+			el.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
 			el.querySelectorAll('.overlay, .stamp').forEach(s => s.style.opacity = 0);
 		}
 	};
@@ -409,6 +427,7 @@
 			dragging = true;
 			startX = e.clientX;
 			startY = e.clientY;
+			startTime = Date.now();
 		}
 	});
 	window.addEventListener('pointermove', onMove);
