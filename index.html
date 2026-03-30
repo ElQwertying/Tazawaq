@@ -80,14 +80,14 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			padding: 10px;
+			padding: 30px;
 			width: 100%;
 		}
 
 		.card {
 			position: absolute;
-			width: 95%;
-			height: 95%;
+			width: 88%;
+			height: 88%;
 			max-width: 420px;
 			max-height: min(70vh, 550px);
 			border-radius: 28px;
@@ -95,7 +95,6 @@
 			will-change: transform;
 			background: #fff;
 			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-			-webkit-mask-image: -webkit-radial-gradient(white, black);
 			transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
 			display: flex;
 			flex-direction: column;
@@ -210,19 +209,27 @@
 		}
 
 		.stamp-no {
-			border-color: #7B4F2E;
-			color: #7B4F2E;
+			border-color: #fff;
+			color: #fff;
 			top: 40px;
 			right: 30px;
 			transform: rotate(15deg);
 		}
 
 		.stamp-yes {
-			border-color: #3B6D11;
-			color: #3B6D11;
+			border-color: #fff;
+			color: #fff;
 			top: 40px;
 			left: 30px;
 			transform: rotate(-15deg);
+		}
+
+		.stamp-rejected {
+			border-color: #fff;
+			color: #fff;
+			top: 40px;
+			left: 50%;
+			transform: translateX(-50%) rotate(-5deg);
 		}
 
 		#done-screen {
@@ -306,6 +313,7 @@
 				<div class="overlay overlay-right"></div>
 				<div class="stamp stamp-no">لا</div>
 				<div class="stamp stamp-yes">آكلها</div>
+				<div class="stamp stamp-rejected">مرفوض</div>
 				<div class="card-content"><div class="card-question">${c.q}</div></div>
 			`;
 			stackContainer.appendChild(el);
@@ -374,17 +382,25 @@
 		el.style.transition = 'none';
 		el.style.transform = `translate(${mx}px, ${my}px) rotate(${mx * 0.04}deg)`;
 
-		const glow = Math.min(60, Math.max(Math.abs(mx), Math.abs(my)) / 2);
+		// Calculate shared opacity factors for both internal overlays and external glow
+		const opUp = ry < -15 ? Math.min(0.8, Math.abs(ry) / 200) : 0;
+		const opLeft = rx < -15 ? Math.min(0.8, Math.abs(rx) / 200) : 0;
+		const opRight = rx > 15 ? Math.min(0.8, Math.abs(rx) / 200) : 0;
 
-		el.querySelector('.overlay-up').style.opacity = my < -20 ? Math.min(0.8, Math.abs(my) / 200) : 0;
-		el.querySelector('.overlay-left').style.opacity = mx < -20 ? Math.min(0.8, Math.abs(mx) / 200) : 0;
-		el.querySelector('.overlay-right').style.opacity = mx > 20 ? Math.min(0.8, Math.abs(mx) / 200) : 0;
+		const rawDist = Math.max(Math.abs(rx), Math.abs(ry));
+		const glow = Math.min(40, rawDist * 0.7);
+
+		el.querySelector('.overlay-up').style.opacity = opUp;
+		el.querySelector('.overlay-left').style.opacity = opLeft;
+		el.querySelector('.overlay-right').style.opacity = opRight;
 		el.querySelector('.stamp-no').style.opacity = mx < -20 ? Math.min(1, Math.abs(mx + 20) / 80) : 0;
 		el.querySelector('.stamp-yes').style.opacity = mx > 20 ? Math.min(1, (mx - 20) / 80) : 0;
+		el.querySelector('.stamp-rejected').style.opacity = ry < -20 ? Math.min(1, Math.abs(ry + 20) / 80) : 0;
 
-		if (my < -20) el.style.boxShadow = `0 0 ${glow}px rgba(255, 65, 108, 0.6)`;
-		else if (mx < -20) el.style.boxShadow = `0 0 ${glow}px rgba(255, 75, 43, 0.6)`;
-		else if (mx > 20) el.style.boxShadow = `0 0 ${glow}px rgba(0, 176, 155, 0.6)`;
+		// Synchronize the heavy halo glow alpha with the internal overlay alpha
+		if (ry < -15) el.style.boxShadow = `0 0 ${glow}px rgba(255, 65, 108, ${opUp}), 0 0 ${glow * 1.5}px rgba(255, 75, 43, ${opUp * 0.4}), inset 0 0 20px rgba(255,255,255,${opUp * 0.2})`;
+		else if (rx < -15) el.style.boxShadow = `0 0 ${glow}px rgba(255, 175, 28, ${opLeft}), 0 0 ${glow * 1.5}px rgba(255, 241, 43, ${opLeft * 0.4}), inset 0 0 20px rgba(255,255,255,${opLeft * 0.2})`;
+		else if (rx > 15) el.style.boxShadow = `0 0 ${glow}px rgba(9, 213, 19, ${opRight}), 0 0 ${glow * 1.5}px rgba(150, 201, 61, ${opRight * 0.4}), inset 0 0 20px rgba(255,255,255,${opRight * 0.2})`;
 		else el.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
 	}
 
