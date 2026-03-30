@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600&display=swap');
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	touch-action: none;
+}
+
+body {
+	background: #FDF8F3;
+	min-height: 100vh;
+	overflow: hidden;
+}
+
+.wrap {
+	font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+	direction: rtl;
+	height: calc(100vh - 70px);
+	width: 100vw;
+	overflow: hidden;
+	user-select: none;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+}
+
+.top-section {
+	padding: 1.5rem 1.25rem 0.5rem;
+	pointer-events: none;
+}
+
+.topbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.app-name {
+	font-size: 18px;
+	font-weight: 600;
+	color: #7B4F2E;
+}
+
+.streak {
+	font-size: 13px;
+	color: #B07850;
+	background: #F5E6D8;
+	padding: 4px 12px;
+	border-radius: 99px;
+}
+
+.confidence-track {
+	background: #EDD9C8;
+	border-radius: 99px;
+	height: 6px;
+	width: 100%;
+	margin-top: 8px;
+}
+
+.confidence-fill {
+	background: #C47B3A;
+	border-radius: 99px;
+	height: 6px;
+	width: 38%;
+	transition: width 0.3s;
+}
+
+.arena {
+	position: relative;
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 30px;
+	width: 100%;
+}
+
+#stack-container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.card {
+	position: absolute;
+	width: 88%;
+	height: 88%;
+	max-width: 420px;
+	max-height: min(70vh, 550px);
+	border-radius: 28px;
+	overflow: hidden;
+	will-change: transform;
+	background: #fff;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+	transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
+	display: flex;
+	flex-direction: column;
+}
+
+.card.active {
+	cursor: grab;
+	z-index: 100 !important;
+}
+
+.card-split-wrap {
+	flex: 1;
+	width: 100%;
+	position: relative;
+	background: #000;
+}
+
+.side {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	width: 60%;
+	background-size: cover;
+	background-position: center;
+}
+
+.side-left {
+	left: 0;
+	-webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
+	mask-image: linear-gradient(to right, black 60%, transparent 100%);
+}
+
+.side-right {
+	right: 0;
+	-webkit-mask-image: linear-gradient(to left, black 60%, transparent 100%);
+	mask-image: linear-gradient(to left, black 60%, transparent 100%);
+}
+
+.overlay {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	z-index: 3;
+	pointer-events: none;
+	border-radius: 28px;
+	transition: opacity 0.08s ease-out;
+}
+
+.overlay-up {
+	background: linear-gradient(to bottom, #FF416C 0%, #FF4B2B 100%);
+}
+
+.overlay-left {
+	background: linear-gradient(225deg, #fff12b 0%, #ffaf1c 100%);
+}
+
+.overlay-right {
+	background: linear-gradient(135deg, #09d513 0%, #09d70c 100%);
+}
+
+.card-content {
+	z-index: 4;
+	padding: 0.3rem;
+	background: linear-gradient(135deg, #F4C430 0%, #E24B4A 100%);
+	text-align: center;
+	flex-shrink: 0;
+}
+
+.card-question {
+	font-size: 16px;
+	color: #fff;
+	font-weight: 600;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.context-area {
+	padding: 1.5rem 1rem 2.5rem;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	transition: opacity 0.3s ease;
+}
+
+.context-title {
+	font-size: 15px;
+	color: #7B4F2E;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.context-desc {
+	font-size: 13px;
+	color: #B07850;
+	opacity: 0.8;
+}
+
+.stamp {
+	position: absolute;
+	border-radius: 12px;
+	padding: 8px 20px;
+	font-size: 32px;
+	font-weight: 900;
+	opacity: 0;
+	z-index: 6;
+	border: 5px solid;
+	pointer-events: none;
+	transition: opacity 0.1s;
+}
+
+.stamp-no {
+	border-color: #fff;
+	color: #fff;
+	top: 40px;
+	right: 30px;
+	transform: rotate(15deg);
+}
+
+.stamp-yes {
+	border-color: #fff;
+	color: #fff;
+	top: 40px;
+	left: 30px;
+	transform: rotate(-15deg);
+}
+
+.stamp-rejected {
+	border-color: #fff;
+	color: #fff;
+	top: 40px;
+	left: 50%;
+	transform: translateX(-50%) rotate(-5deg);
+}
+
+#done-screen {
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	opacity: 0;
+	transition: opacity 0.5s ease;
+}
+
+#btn-reload {
+	margin-top: 25px;
+	padding: 12px 30px;
+	border: none;
+	background: #7B4F2E;
+	color: white;
+	border-radius: 12px;
+	font-family: inherit;
+	cursor: pointer;
+}
