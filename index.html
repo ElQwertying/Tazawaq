@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600&display=swap');
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			touch-action: none;
+		}
+
+		body {
+			background: #FDF8F3;
+			min-height: 100vh;
+			overflow: hidden;
+		}
+
+		.wrap {
+			font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+			direction: rtl;
+			height: 100vh;
+			width: 100vw;
+			overflow: hidden;
+			user-select: none;
+			position: relative;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.top-section {
+			padding: 1.5rem 1.25rem 0.5rem;
+			pointer-events: none;
+		}
+
+		.topbar {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 12px;
+		}
+
+		.app-name {
+			font-size: 18px;
+			font-weight: 600;
+			color: #7B4F2E;
+		}
+
+		.streak {
+			font-size: 13px;
+			color: #B07850;
+			background: #F5E6D8;
+			padding: 4px 12px;
+			border-radius: 99px;
+		}
+
+		.confidence-track {
+			background: #EDD9C8;
+			border-radius: 99px;
+			height: 6px;
+			width: 100%;
+			margin-top: 8px;
+		}
+
+		.confidence-fill {
+			background: #C47B3A;
+			border-radius: 99px;
+			height: 6px;
+			width: 38%;
+			transition: width 0.3s;
+		}
+
+		.arena {
+			position: relative;
+			flex: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 10px;
+			width: 100%;
+		}
+
+		.card {
+			position: absolute;
+			width: 95%;
+			height: 95%;
+			max-width: 420px;
+			max-height: min(70vh, 550px);
+			border-radius: 28px;
+			overflow: hidden;
+			will-change: transform;
+			background: #fff;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+			-webkit-mask-image: -webkit-radial-gradient(white, black);
+			transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.card.active {
+			cursor: grab;
+			z-index: 100 !important;
+		}
+
+		.card-split-wrap {
+			flex: 1;
+			width: 100%;
+			position: relative;
+			background: #000;
+			/* Provides a dark base for the cross-fade */
+		}
+
+		.side {
+			position: absolute;
+			top: 0;
+			height: 100%;
+			width: 60%;
+			/* Overlap in the middle */
+			background-size: cover;
+			background-position: center;
+		}
+
+		.side-left {
+			left: 0;
+			-webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
+			mask-image: linear-gradient(to right, black 60%, transparent 100%);
+		}
+
+		.side-right {
+			right: 0;
+			-webkit-mask-image: linear-gradient(to left, black 60%, transparent 100%);
+			mask-image: linear-gradient(to left, black 60%, transparent 100%);
+		}
+
+		/* Faster transition for the 'lock-in' effect */
+		.overlay {
+			position: absolute;
+			inset: 0;
+			opacity: 0;
+			z-index: 3;
+			pointer-events: none;
+			border-radius: 28px;
+			transition: opacity 0.08s ease-out;
+		}
+
+		.overlay-up {
+			background: #E24B4A;
+		}
+
+		.overlay-left {
+			background: #F4C430;
+		}
+
+		.card-content {
+			z-index: 4;
+			padding: 0.3rem;
+			background: linear-gradient(135deg, #F4C430 0%, #E24B4A 100%);
+			text-align: center;
+			flex-shrink: 0;
+		}
+
+		.card-question {
+			font-size: 16px;
+			color: #fff;
+			font-weight: 600;
+			text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+		}
+
+		.context-area {
+			padding: 1.5rem 1rem 2.5rem;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			transition: opacity 0.3s ease;
+		}
+
+		.context-title {
+			font-size: 15px;
+			color: #7B4F2E;
+			font-weight: 600;
+			margin-bottom: 4px;
+		}
+
+		.context-desc {
+			font-size: 13px;
+			color: #B07850;
+			opacity: 0.8;
+		}
+
+		.stamp {
+			position: absolute;
+			border-radius: 12px;
+			padding: 8px 20px;
+			font-size: 32px;
+			font-weight: 900;
+			opacity: 0;
+			z-index: 6;
+			border: 5px solid;
+			pointer-events: none;
+			transition: opacity 0.1s;
+		}
+
+		.stamp-no {
+			border-color: #7B4F2E;
+			color: #7B4F2E;
+			top: 40px;
+			right: 30px;
+			transform: rotate(15deg);
+		}
+
+		.stamp-yes {
+			border-color: #3B6D11;
+			color: #3B6D11;
+			top: 40px;
+			left: 30px;
+			transform: rotate(-15deg);
+		}
+
+		#done-screen {
+			display: none;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			opacity: 0;
+			transition: opacity 0.5s ease;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="wrap">
+		<div class="top-section">
+			<div class="topbar">
+				<div class="app-name">تذوّق</div>
+				<div class="streak">🔥 ٣ أيام</div>
+			</div>
+			<div class="confidence-track">
+				<div class="confidence-fill" id="progress"></div>
+			</div>
+		</div>
+
+		<div class="arena">
+			<div id="stack-container"
+				style="position:relative; width:100%; height:100%; display:flex; justify-content:center; align-items:center;">
+			</div>
+
+			<div id="done-screen">
+				<div style="font-size: 80px; margin-bottom: 20px;">✅</div>
+				<div class="context-title" style="font-size: 22px;">تم الانتهاء!</div>
+				<div class="context-desc">لقد تعلمنا ذوقك بشكل رائع</div>
+				<button onclick="location.reload()"
+					style="margin-top:25px; padding:12px 30px; border:none; background:#7B4F2E; color:white; border-radius:12px; font-family:inherit; cursor:pointer;">ابدأ
+					من جديد</button>
+			</div>
+		</div>
+
+		<div class="context-area" id="ctx-area">
+			<div class="context-title" id="ctx-title">...</div>
+			<div class="context-desc" id="ctx-desc">...</div>
+		</div>
+	</div>
+
+</body>
+
+<script>
+	const cards = [
+		{ q: 'دجاج مشوي + سبانخ؟', left: 'https://images.unsplash.com/photo-1632778149975-420e0e75ee08?auto=format&fit=crop&w=600', right: 'https://images.unsplash.com/photo-1546793665-c74683f339c1?auto=format&fit=crop&w=600', title: 'تجانس المكونات', desc: 'نقيس مدى قبولك لهذه الإضافات معاً' },
+		{ q: 'أرز بسمتي + طماطم؟', left: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=600', right: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600', title: 'أساسيات الوجبة', desc: 'هل تعتبر هذا المزيج وجبة متكاملة؟' },
+		{ q: 'ستيك لحم + سلطة خضراء؟', left: 'https://images.unsplash.com/photo-1546241072-48010ad28c2c?auto=format&fit=crop&w=600', right: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600', title: 'وجبة غداء', desc: 'هل تفضل البروتين مع الألياف الخضراء؟' },
+		{ q: 'بطاطس مقلية + ثوم؟', left: 'https://images.unsplash.com/photo-1573016608294-733700212781?auto=format&fit=crop&w=600', right: 'https://images.unsplash.com/photo-1581212232070-496525712e10?auto=format&fit=crop&w=600', title: 'إضافات مفضلة', desc: 'الثومية مع البطاطس مقبلات شهيرة' },
+		{ q: 'سمك + أرز أبيض؟', left: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600', right: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=600', title: 'أطباق بحرية', desc: 'هل تفضل السمك مع الأرز أم الخبز؟' }
+	];
+
+	let idx = 0, dragging = false, startX = 0, startY = 0;
+	const PHYSICS_THRESHOLD = 100;
+	const FLY_THRESHOLD = 140;
+	const stackContainer = document.getElementById('stack-container');
+
+	function initStack() {
+		idx = 0;
+		stackContainer.innerHTML = '';
+		cards.slice().reverse().forEach((c, i) => {
+			const realIdx = cards.length - 1 - i;
+			const el = document.createElement('div');
+			el.className = 'card';
+			el.id = `card-${realIdx}`;
+			el.innerHTML = `
+				<div class="card-split-wrap">
+					<div class="side side-left" style="background-image:url(${c.left})"></div>
+					<div class="side side-right" style="background-image:url(${c.right})"></div>
+				</div>
+				<div class="overlay overlay-up"></div>
+				<div class="overlay overlay-left"></div>
+				<div class="stamp stamp-no">لا</div>
+				<div class="stamp stamp-yes">آكلها</div>
+				<div class="card-content"><div class="card-question">${c.q}</div></div>
+			`;
+			stackContainer.appendChild(el);
+		});
+		updateStack();
+	}
+
+	function updateStack() {
+		if (idx >= cards.length) {
+			stackContainer.style.display = 'none';
+			const doneScreen = document.getElementById('done-screen');
+			doneScreen.style.display = 'flex';
+			setTimeout(() => document.getElementById('done-screen').style.opacity = 1, 50);
+			document.getElementById('ctx-area').style.opacity = 0;
+			return;
+		}
+
+		for (let i = idx; i < cards.length; i++) {
+			const el = document.getElementById(`card-${i}`);
+			const diff = i - idx;
+
+			if (diff === 0) {
+				el.classList.add('active');
+				el.style.transform = 'translate(0,0) scale(1)';
+				el.style.opacity = 1;
+				el.style.zIndex = 100;
+			} else {
+				el.classList.remove('active');
+				const scale = 1 -
+					Math.pow(diff, 0.9) * 0.09;
+				// (diff * 0.09);
+				const moveY =
+					// Math.pow(diff, 1.0) * 17;
+					diff * 17;
+				el.style.transform = `translateY(${moveY}px) scale(${scale})`;
+				el.style.opacity = 1 - (diff * 0.2);
+				el.style.zIndex = 100 - diff;
+			}
+		}
+
+		const c = cards[idx];
+		document.getElementById('ctx-area').style.opacity = 0;
+		setTimeout(() => {
+			document.getElementById('ctx-title').textContent = c.title;
+			document.getElementById('ctx-desc').textContent = c.desc;
+			document.getElementById('ctx-area').style.opacity = 1;
+		}, 150);
+		document.getElementById('progress').style.width = ((idx + 1) / cards.length * 100) + '%';
+	}
+
+	function calculatePhysics(delta) {
+		const sign = delta > 0 ? 1 : -1;
+		const absDelta = Math.abs(delta);
+		if (absDelta <= PHYSICS_THRESHOLD) return delta * 0.2;
+		return (PHYSICS_THRESHOLD * 0.5 * sign) + (delta - (PHYSICS_THRESHOLD * sign)) * 2.0;
+	}
+
+	function onMove(e) {
+		if (!dragging || idx >= cards.length) return;
+		const el = document.getElementById(`card-${idx}`);
+		const rx = e.clientX - startX;
+		const ry = e.clientY - startY;
+		const mx = calculatePhysics(rx);
+		const my = calculatePhysics(ry);
+
+		el.style.transition = 'none';
+		el.style.transform = `translate(${mx}px, ${my}px) rotate(${mx * 0.04}deg)`;
+
+		el.querySelector('.overlay-up').style.opacity = my < -20 ? Math.min(0.7, Math.abs(my) / 200) : 0;
+		el.querySelector('.stamp-no').style.opacity = mx < -20 ? Math.min(1, Math.abs(mx + 20) / 80) : 0;
+		el.querySelector('.stamp-yes').style.opacity = mx > 20 ? Math.min(1, (mx - 20) / 80) : 0;
+		el.querySelector('.overlay-left').style.opacity = mx < -20 ? Math.min(0.6, Math.abs(mx) / 200) : 0;
+	}
+
+	function fly(dir) {
+		const el = document.getElementById(`card-${idx}`);
+		el.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s';
+		const x = dir === 'r' ? 1000 : (dir === 'l' ? -1000 : 0);
+		const y = dir === 'u' ? -1200 : 0;
+		el.style.transform = `translate(${x}px, ${y}px) rotate(${x / 10}deg)`;
+		el.style.opacity = '0';
+
+		idx++;
+		setTimeout(updateStack, 200);
+	}
+
+	const end = (e) => {
+		if (!dragging || idx >= cards.length) return;
+		dragging = false;
+		const el = document.getElementById(`card-${idx}`);
+		const rx = e.clientX - startX;
+		const ry = e.clientY - startY;
+
+		if (rx > FLY_THRESHOLD) fly('r');
+		else if (rx < -FLY_THRESHOLD) fly('l');
+		else if (ry < -FLY_THRESHOLD) fly('u');
+		else {
+			el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+			el.style.transform = 'translate(0,0) scale(1)';
+			el.querySelectorAll('.overlay, .stamp').forEach(s => s.style.opacity = 0);
+		}
+	};
+
+	window.addEventListener('pointerdown', (e) => {
+		const cardEl = e.target.closest('.card.active');
+		if (cardEl) {
+			dragging = true;
+			startX = e.clientX;
+			startY = e.clientY;
+		}
+	});
+	window.addEventListener('pointermove', onMove);
+	window.addEventListener('pointerup', end);
+
+	initStack();
+</script>
