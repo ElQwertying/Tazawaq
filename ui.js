@@ -52,9 +52,9 @@ export function updateStack() {
 		} else {
 			el.classList.remove('active');
 			const scale = 1 - Math.pow(diff, 0.9) * 0.09;
-			const moveY = diff * 22;
+			const moveY = diff * 27;
 			el.style.transform = `translateY(${moveY}px) scale(${scale})`;
-			el.style.opacity = 1 - (diff * 0.2);
+			// el.style.opacity = 1 - (diff * 0.2);
 			el.style.zIndex = 100 - diff;
 		}
 	}
