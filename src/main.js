@@ -1,10 +1,11 @@
-import { CARDS, FLY_THRESHOLD, VELOCITY_THRESHOLD } from './config.js';
+import { FLY_THRESHOLD, VELOCITY_THRESHOLD } from './config.js';
 import { state } from './state.js';
 import { calculatePhysics } from './physics.js';
 import { initStack, updateStack } from './ui.js';
+import { db, collection, getDocs } from './firebase-config.js';
 
 function onMove(e) {
-	if (!state.dragging || state.idx >= CARDS.length) return;
+	if (!state.dragging || state.idx >= state.cards.length) return;
 	const el = document.getElementById(`card-${state.idx}`);
 	const rx = e.clientX - state.startX;
 	const ry = e.clientY - state.startY;
@@ -45,7 +46,7 @@ function fly(dir) {
 }
 
 function onEnd(e) {
-	if (!state.dragging || state.idx >= CARDS.length) return;
+	if (!state.dragging || state.idx >= state.cards.length) return;
 	state.dragging = false;
 	const el = document.getElementById(`card-${state.idx}`);
 	const rx = e.clientX - state.startX;
@@ -76,4 +77,11 @@ window.addEventListener('pointerdown', (e) => {
 window.addEventListener('pointermove', onMove);
 window.addEventListener('pointerup', onEnd);
 document.getElementById('btn-reload').addEventListener('click', () => location.reload());
-initStack();
+
+async function loadData() {
+	const querySnapshot = await getDocs(collection(db, "cards"));
+	state.cards = querySnapshot.docs.map(doc => doc.data());
+	initStack();
+}
+
+loadData();

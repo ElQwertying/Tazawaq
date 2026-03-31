@@ -1,4 +1,3 @@
-import { CARDS } from './config.js';
 import { state } from './state.js';
 
 const stackContainer = document.getElementById('stack-container');
@@ -9,8 +8,8 @@ const progress = document.getElementById('progress');
 export function initStack() {
 	state.idx = 0;
 	stackContainer.innerHTML = '';
-	CARDS.slice().reverse().forEach((c, i) => {
-		const realIdx = CARDS.length - 1 - i;
+	state.cards.slice().reverse().forEach((c, i) => {
+		const realIdx = state.cards.length - 1 - i;
 		const el = document.createElement('div');
 		el.className = 'card';
 		el.id = `card-${realIdx}`;
@@ -34,7 +33,7 @@ export function initStack() {
 }
 
 export function updateStack() {
-	if (state.idx >= CARDS.length) {
+	if (state.idx >= state.cards.length) {
 		stackContainer.style.display = 'none';
 		doneScreen.style.display = 'flex';
 		setTimeout(() => doneScreen.style.opacity = 1, 50);
@@ -42,7 +41,7 @@ export function updateStack() {
 		return;
 	}
 
-	for (let i = state.idx; i < CARDS.length; i++) {
+	for (let i = state.idx; i < state.cards.length; i++) {
 		const el = document.getElementById(`card-${i}`);
 		const wash = el.querySelector('.white-wash');
 		const diff = i - state.idx;
@@ -63,7 +62,7 @@ export function updateStack() {
 		}
 	}
 
-	const currentData = CARDS[state.idx];
+	const currentData = state.cards[state.idx];
 	ctxArea.style.opacity = 0;
 	setTimeout(() => {
 		document.getElementById('ctx-title').textContent = currentData.title;
@@ -71,5 +70,5 @@ export function updateStack() {
 		ctxArea.style.opacity = 1;
 	}, 150);
 
-	progress.style.width = ((state.idx + 1) / CARDS.length * 100) + '%';
+	progress.style.width = ((state.idx + 1) / state.cards.length * 100) + '%';
 }
