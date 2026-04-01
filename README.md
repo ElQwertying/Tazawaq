@@ -1,4 +1,4 @@
-# TAZAWAQ | تزوّق
+# TAZAWAQ | تذوّق
 ### Product & Architecture Documentation · v0.01
 
 ![Platform](https://img.shields.io/badge/Platform-Mobile-blue)
