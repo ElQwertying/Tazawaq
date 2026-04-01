@@ -1,3 +1,5 @@
+// ui.js - Updated for infinite dynamic pairs
+
 import { state } from './state.js';
 
 const stackContainer = document.getElementById('stack-container');
@@ -8,32 +10,46 @@ const progress = document.getElementById('progress');
 export function initStack() {
 	state.idx = 0;
 	stackContainer.innerHTML = '';
-	state.cards.slice().reverse().forEach((c, i) => {
-		const realIdx = state.cards.length - 1 - i;
-		const el = document.createElement('div');
-		el.className = 'card';
-		el.id = `card-${realIdx}`;
-		el.innerHTML = `
-			<div class="card-split-wrap">
-				<div class="side side-left" style="background-image:url(${c.left})"></div>
-				<div class="side side-right" style="background-image:url(${c.right})"></div>
-			</div>
-			<div class="overlay overlay-up"></div>
-			<div class="overlay overlay-left"></div>
-			<div class="overlay overlay-right"></div>
-			<div class="stamp stamp-no">لا</div>
-			<div class="stamp stamp-yes">آكلها</div>
-			<div class="stamp stamp-rejected">مرفوض</div>
-			<div class="card-content"><div class="card-question">${c.q}</div></div>
-			<div class="white-wash" style="position:absolute;top:0;left:0;width:100%;height:100%;background:white;opacity:0;pointer-events:none;border-radius:inherit;z-index:5;"></div>
-		`;
-		stackContainer.appendChild(el);
+
+	// Create DOM elements for all CURRENT pairs (initially 3)
+	state.pairs.forEach((c, i) => {
+		createCardElement(c, i);
 	});
+
 	updateStack();
 }
 
+// Creates a single card DOM element and appends it
+function createCardElement(cardData, index) {
+	const el = document.createElement('div');
+	el.className = 'card';
+	el.id = `card-${index}`;
+
+	el.innerHTML = `
+		<div class="card-split-wrap">
+			<div class="side side-left" style="background-image:url(${cardData.left})"></div>
+			<div class="side side-right" style="background-image:url(${cardData.right})"></div>
+		</div>
+		<div class="overlay overlay-up"></div>
+		<div class="overlay overlay-left"></div>
+		<div class="overlay overlay-right"></div>
+		<div class="stamp stamp-no">لا</div>
+		<div class="stamp stamp-yes">آكلها</div>
+		<div class="stamp stamp-rejected">مرفوض</div>
+		<div class="card-content">
+			<div class="card-question">${cardData.q}</div>
+		</div>
+		<div class="white-wash" style="position:absolute;top:0;left:0;width:100%;height:100%;background:white;opacity:0;pointer-events:none;border-radius:inherit;z-index:5;"></div>
+	`;
+
+	stackContainer.appendChild(el);
+	return el;
+}
+
 export function updateStack() {
-	if (state.idx >= state.cards.length) {
+	console.log("updateStack -> state.pairs.length:" + state.pairs.length);
+
+	if (state.idx >= state.pairs.length) {
 		stackContainer.style.display = 'none';
 		doneScreen.style.display = 'flex';
 		setTimeout(() => doneScreen.style.opacity = 1, 50);
@@ -41,18 +57,23 @@ export function updateStack() {
 		return;
 	}
 
-	for (let i = state.idx; i < state.cards.length; i++) {
+	// Update styling for all existing cards
+	for (let i = state.idx; i < state.pairs.length; i++) {
 		const el = document.getElementById(`card-${i}`);
+		if (!el) continue;                    // safety
+
 		const wash = el.querySelector('.white-wash');
 		const diff = i - state.idx;
 
 		if (diff === 0) {
+			// Top card (active)
 			el.classList.add('active');
 			el.style.transform = 'translate(0,0) scale(1)';
 			el.style.opacity = 1;
 			el.style.zIndex = 100;
 			if (wash) wash.style.opacity = 0;
 		} else {
+			// Cards below
 			el.classList.remove('active');
 			const scale = 1 - Math.pow(diff, 0.9) * 0.09;
 			const moveY = diff * 27;
@@ -62,13 +83,106 @@ export function updateStack() {
 		}
 	}
 
-	const currentData = state.cards[state.idx];
+	// Update context area
+	const currentData = state.pairs[state.idx];
 	ctxArea.style.opacity = 0;
 	setTimeout(() => {
-		document.getElementById('ctx-title').textContent = currentData.title;
-		document.getElementById('ctx-desc').textContent = currentData.desc;
+		document.getElementById('ctx-title').textContent = currentData.title || '';
 		ctxArea.style.opacity = 1;
 	}, 150);
 
-	progress.style.width = ((state.idx + 1) / state.cards.length * 100) + '%';
+	// document.getElementById('ctx-desc').textContent = '';
+	// Progress
+	progress.style.width = ((state.idx + 1) / state.pairs.length * 100) + '%';
 }
+
+// ─────────────────────────────────────────────
+// NEW: Add a new pair dynamically (called from fly())
+// ─────────────────────────────────────────────
+export function appendNewCard(newCardData) {
+	// console.log("appendNewCard -> fired");
+
+	const newIndex = state.pairs.length - 1;        // index it will have after push
+	// state.pairs.push(newCardData);
+
+	// Create the DOM element for the new card
+	createCardElement(newCardData, newIndex);
+
+	// Immediately update the stack visuals (so the new card appears at the bottom)
+	updateStack();
+}
+
+// import { state } from './state.js';
+
+// const stackContainer = document.getElementById('stack-container');
+// const doneScreen = document.getElementById('done-screen');
+// const ctxArea = document.getElementById('ctx-area');
+// const progress = document.getElementById('progress');
+
+// export function initStack() {
+// 	state.idx = 0;
+// 	stackContainer.innerHTML = '';
+// 	state.pairs.slice().reverse().forEach((c, i) => {
+// 		const realIdx = state.pairs.length - 1 - i;
+// 		const el = document.createElement('div');
+// 		el.className = 'card';
+// 		el.id = `card-${realIdx}`;
+// 		el.innerHTML = `
+// 			<div class="card-split-wrap">
+// 				<div class="side side-left" style="background-image:url(${c.left})"></div>
+// 				<div class="side side-right" style="background-image:url(${c.right})"></div>
+// 			</div>
+// 			<div class="overlay overlay-up"></div>
+// 			<div class="overlay overlay-left"></div>
+// 			<div class="overlay overlay-right"></div>
+// 			<div class="stamp stamp-no">لا</div>
+// 			<div class="stamp stamp-yes">آكلها</div>
+// 			<div class="stamp stamp-rejected">مرفوض</div>
+// 			<div class="card-content"><div class="card-question">${c.q}</div></div>
+// 			<div class="white-wash" style="position:absolute;top:0;left:0;width:100%;height:100%;background:white;opacity:0;pointer-events:none;border-radius:inherit;z-index:5;"></div>
+// 		`;
+// 		stackContainer.appendChild(el);
+// 	});
+// 	updateStack();
+// }
+
+// export function updateStack() {
+// 	if (state.idx >= state.pairs.length) {
+// 		stackContainer.style.display = 'none';
+// 		doneScreen.style.display = 'flex';
+// 		setTimeout(() => doneScreen.style.opacity = 1, 50);
+// 		ctxArea.style.opacity = 0;
+// 		return;
+// 	}
+
+// 	for (let i = state.idx; i < state.pairs.length; i++) {
+// 		const el = document.getElementById(`card-${i}`);
+// 		const wash = el.querySelector('.white-wash');
+// 		const diff = i - state.idx;
+
+// 		if (diff === 0) {
+// 			el.classList.add('active');
+// 			el.style.transform = 'translate(0,0) scale(1)';
+// 			el.style.opacity = 1;
+// 			el.style.zIndex = 100;
+// 			if (wash) wash.style.opacity = 0;
+// 		} else {
+// 			el.classList.remove('active');
+// 			const scale = 1 - Math.pow(diff, 0.9) * 0.09;
+// 			const moveY = diff * 27;
+// 			el.style.transform = `translateY(${moveY}px) scale(${scale})`;
+// 			el.style.zIndex = 100 - diff;
+// 			if (wash) wash.style.opacity = Math.min(diff * 0.35, 0.85);
+// 		}
+// 	}
+
+// 	const currentData = state.pairs[state.idx];
+// 	ctxArea.style.opacity = 0;
+// 	setTimeout(() => {
+// 		document.getElementById('ctx-title').textContent = currentData.title;
+// 		document.getElementById('ctx-desc').textContent = '';
+// 		ctxArea.style.opacity = 1;
+// 	}, 150);
+
+// 	progress.style.width = ((state.idx + 1) / state.pairs.length * 100) + '%';
+// }
