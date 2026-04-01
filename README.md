@@ -1,6 +1,6 @@
 TAZAWAQ
 تزوّق
-Product & Architecture README  ·  v1.0
+Product & Architecture README  ·  v0.01
 
 What Problem Does Tazawaq Solve?
 Every day, millions of people face the same question: "What do I eat today?" The answer is harder than it sounds. It depends on what ingredients are at hand, what cooking effort is realistic on that day, personal taste preferences, dietary restrictions, cuisine familiarity, and the desire for variety without monotony.
